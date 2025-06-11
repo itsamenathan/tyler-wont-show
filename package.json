@@ -3,9 +3,11 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
-		"deploy": "wrangler deploy",
-		"dev": "wrangler dev",
-		"start": "wrangler dev",
+		"deploy-prod": "wrangler deploy --env prod",
+		"deploy-dev": "wrangler deploy --env dev",
+		"dev": "wrangler dev --env dev",
+		"dev-prod": "wrangler dev --env prod",
+		"start": "wrangler dev --env dev",
 		"test": "vitest",
 		"cf-typegen": "wrangler types"
 	},
