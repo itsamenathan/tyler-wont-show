@@ -1,31 +1,32 @@
 async function getHeadline(env: Env): Promise<string> {
-	let headline = "Tyler's No-Show Epidemic Spreads";
+  let headline = "Tyler's No-Show Epidemic Spreads";
 
-	if (env.ENV === "prod") {
-		const aiResponse = await env.AI.run(env.AI_MODEL, {
-			prompt: `My friends and I have an inside joke about how Tyler will never show to a planned event. 
+  if (env.ENV === "prod") {
+    const aiResponse = await env.AI.run(env.AI_MODEL, {
+      prompt: `My friends and I have an inside joke about how Tyler will never show to a planned event.
+       Tyler never releases the files he says he will, no matter how many times we ask.
 			 I want you to write a funny news headline about this.
 			 Provide only one headline, in plain text format without additional text.
 			 `,
-		});
-		let rawHeadline = aiResponse.response;
-		// Remove leading/trailing quotes if present and ensure it's a string
-		headline = typeof rawHeadline === 'string' ? rawHeadline.replace(/^"|"$/g, '') : String(rawHeadline);
-	}
+    });
+    let rawHeadline = aiResponse.response;
+    // Remove leading/trailing quotes if present and ensure it's a string
+    headline = typeof rawHeadline === 'string' ? rawHeadline.replace(/^"|"$/g, '') : String(rawHeadline);
+  }
 
-	return headline;
+  return headline;
 }
 
 export default {
-	async fetch(request, env, ctx): Promise<Response> {
+  async fetch(request, env, ctx): Promise<Response> {
 
-		const url = new URL(request.url);
-		if (url.pathname !== '/') {
-			return new Response('Not Found', { status: 404 });
-		}
+    const url = new URL(request.url);
+    if (url.pathname !== '/') {
+      return new Response('Not Found', { status: 404 });
+    }
 
-		const headline = await getHeadline(env);
-		const HTML = `<!DOCTYPE html>
+    const headline = await getHeadline(env);
+    const HTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -119,10 +120,10 @@ export default {
 </body>
 </html>`;
 
-		return new Response(HTML, {
-			headers: {
-				'Content-Type': 'text/html; charset=UTF-8',
-			},
-		});
-	},
+    return new Response(HTML, {
+      headers: {
+        'Content-Type': 'text/html; charset=UTF-8',
+      },
+    });
+  },
 } satisfies ExportedHandler<Env>;
