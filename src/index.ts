@@ -1,14 +1,19 @@
 async function getHeadline(env: Env): Promise<string> {
-  const aiResponse = await env.AI.run(env.AI_MODEL, {
-    prompt: `My friends and I have an inside joke about how Tyler will never show to a planned event.
-       Tyler will also never release the files, no matter how many times we ask.
+  let headline = "Tyler's No-Show Epidemic Spreads";
+
+  if (env.ENV === "prod") {
+    const aiResponse = await env.AI.run(env.AI_MODEL, {
+      prompt: `My friends and I have an inside joke about how Tyler will never show to a planned event.
+       Tyler never releases the files he says he will, no matter how many times we ask.
 			 I want you to write a funny news headline about this.
 			 Provide only one headline, in plain text format without additional text.
 			 `,
-  });
-  let rawHeadline = aiResponse.response;
-  // Remove leading/trailing quotes if present and ensure it's a string
-  let headline = typeof rawHeadline === 'string' ? rawHeadline.replace(/^"|"$/g, '') : String(rawHeadline);
+    });
+    let rawHeadline = aiResponse.response;
+    // Remove leading/trailing quotes if present and ensure it's a string
+    headline = typeof rawHeadline === 'string' ? rawHeadline.replace(/^"|"$/g, '') : String(rawHeadline);
+  }
+
   return headline;
 }
 
