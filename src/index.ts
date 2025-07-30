@@ -4,7 +4,6 @@ async function getHeadline(env: Env): Promise<string> {
   if (env.ENV === "prod") {
     const aiResponse = await env.AI.run(env.AI_MODEL, {
       prompt: `My friends and I have an inside joke about how Tyler will never show to a planned event.
-       Tyler never releases the files he says he will, no matter how many times we ask.
 			 I want you to write a funny news headline about this.
 			 Provide only one headline, in plain text format without additional text.
 			 `,
