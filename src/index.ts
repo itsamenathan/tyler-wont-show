@@ -1,17 +1,67 @@
-async function getHeadline(env: Env): Promise<string> {
-  let headline = "Tyler's No-Show Epidemic Spreads";
+const FALLBACK_HEADLINE = "Tyler's No-Show Epidemic Spreads";
 
-  if (env.ENV === "prod") {
-    const aiResponse = await env.AI.run(env.AI_MODEL, {
-      prompt: `My friends and I have an inside joke about how Tyler will never show to a planned event.
-			 I want you to write a funny news headline about this.
-			 Provide only one headline, in plain text format without additional text.
-			 `,
-    });
-    let rawHeadline = aiResponse.response;
-    // Remove leading/trailing quotes if present and ensure it's a string
-    headline = typeof rawHeadline === 'string' ? rawHeadline.replace(/^"|"$/g, '') : String(rawHeadline);
-  }
+export function extractHeadline(value: unknown): string {
+	if (typeof value === 'string') {
+		const text = value.trim().replace(/^```(?:json|text)?\s*|\s*```$/gi, '').trim();
+		try {
+			return extractHeadline(JSON.parse(text));
+		} catch {
+			return text.replace(/^['"]|['"]$/g, '').trim();
+		}
+	}
+
+	if (value && typeof value === 'object') {
+		const result = value as Record<string, unknown>;
+		for (const key of ['headline', 'response', 'text']) {
+			if (key in result) {
+				const headline = extractHeadline(result[key]);
+				if (headline) return headline;
+			}
+		}
+	}
+
+	return '';
+}
+
+export function escapeHtml(value: string): string {
+	const entities: Record<string, string> = {
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'"': '&quot;',
+		"'": '&#39;',
+	};
+	return value.replace(/[&<>"']/g, (character) => entities[character]);
+}
+
+async function getHeadline(env: Env): Promise<string> {
+	let headline = "Tyler's No-Show Epidemic Spreads";
+
+	if (env.ENV === "prod") {
+		const aiResponse = await env.AI.run(env.AI_MODEL, {
+			messages: [
+				{
+					role: 'system',
+					content: 'Return one short, funny news headline as JSON. Do not include commentary.',
+				},
+				{
+					role: 'user',
+					content: 'My friend Tyler never shows up to planned events. Write a funny headline about his latest no-show.',
+				},
+			],
+			max_tokens: 48,
+			temperature: 0.8,
+			response_format: {
+				type: 'json_schema',
+				json_schema: {
+					type: 'object',
+					properties: { headline: { type: 'string' } },
+					required: ['headline'],
+				},
+			},
+		});
+		headline = extractHeadline(aiResponse) || FALLBACK_HEADLINE;
+	}
 
   return headline;
 }
@@ -33,7 +83,7 @@ export default {
   <title>Tyler Won't Show</title>
   <!-- Discord (Open Graph) preview tags -->
   <meta property="og:title" content="Tyler Won't Show" />
-  <meta property="og:description" content="${headline}" />
+	  <meta property="og:description" content="${escapeHtml(headline)}" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://tyler.wont.show" />
   <meta property="og:image" content="https://tyler.wont.show/wont-show.png" />
@@ -114,7 +164,7 @@ export default {
 <body>
   <div class="glass">
     <h1>Tyler Won't Show</h1>
-    <div class="headline">${headline}</div>
+	    <div class="headline">${escapeHtml(headline)}</div>
   </div>
 </body>
 </html>`;
