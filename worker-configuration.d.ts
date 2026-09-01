@@ -5,6 +5,7 @@ declare namespace Cloudflare {
 	interface Env {
 		ENV: "prod" | "dev";
 		AI_MODEL: "@cf/meta/llama-3.1-8b-instruct-fast";
+		AI: Ai;
 		ASSETS: Fetcher;
 	}
 }
@@ -3649,6 +3650,7 @@ interface AiModels {
     "@cf/meta/llama-3-8b-instruct-awq": BaseAiTextGeneration;
     "@hf/meta-llama/meta-llama-3-8b-instruct": BaseAiTextGeneration;
     "@cf/meta/llama-3.1-8b-instruct": BaseAiTextGeneration;
+    "@cf/meta/llama-3.1-8b-instruct-fast": BaseAiTextGeneration;
     "@cf/meta/llama-3.1-8b-instruct-fp8": BaseAiTextGeneration;
     "@cf/meta/llama-3.1-8b-instruct-awq": BaseAiTextGeneration;
     "@cf/meta/llama-3.2-3b-instruct": BaseAiTextGeneration;
